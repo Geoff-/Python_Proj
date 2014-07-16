@@ -146,6 +146,7 @@ def retrieveTagData(source,index):
 		returnTag['_Closing'] = False
 
 	### If there is no other data, then return the dict now
+    ## Possible Error
 	if (" " not in tag) or ("\n" not in tag):
 		return returnTag
 
@@ -160,7 +161,7 @@ def retrieveTagData(source,index):
 			tagData = []
 			### Exit loop
 			break
-		elif tag[i] == "/n" and not isName:
+		elif tag[i] == "\n" """and not isName""":
 			isName = True
 			### Flush tag to dictionary
 			returnTag[ str(tagDataName) ] = str(tagData)
@@ -168,13 +169,13 @@ def retrieveTagData(source,index):
 			tagData = []
 			# Increment
 			i += 1
-		elif tag[i] == "=" and isName:
+		elif tag[i] == "=" """and isName""":
 			### Move to input tag data
 			isName = False
 			# Increment
 			i += 1
 			continue
-		elif tag[i] == " " and not isName:
+		elif tag[i] == " " """and not isName""":
 			isName = True
 			### Flush tag to dictionary
 			returnTag[ str(tagDataName) ] = str(tagData)
@@ -193,10 +194,10 @@ def retrieveTagData(source,index):
 
 
 	### Return dict
-	if '' in returnTag:
+	"""if '' in returnTag:
 		del returnTag['']
 	elif '/' in returnTag:
-		del returnTag['/']
+		del returnTag['/']"""
 	return returnTag
 
 
@@ -210,7 +211,7 @@ source = prettySource(getSource(url))
 #print(source)
 saveFile(source, "source")
 print("\n\n\n")
-print (str(retrieveTagData(source, 189)))
+print (str(retrieveTagData(source, 287)))
 print("/tag")
 #search = searchForTag(source, "div", 1)
 #print (search)
