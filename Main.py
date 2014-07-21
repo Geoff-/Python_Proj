@@ -118,6 +118,7 @@ def retrieveTagData(source,index):
 	tagData = []
 	tagDataName = []
 	isName = True
+	nameKey = ""
 	#	</Vars>
 
 	### Initial checking
@@ -127,9 +128,48 @@ def retrieveTagData(source,index):
 	else:
 		### Retrieve only the tag, and add the index at which the tag is found in the source
 		tag = retrieveTag(source,index)
-		returnTag['indexInSource'] = index
+		#returnTag['indexInSource'] = index
+		tag = tag.split()
 
-	### Retrieves the tag name
+	### Split the tags apart
+	for i in range(len(tag)):
+		### Loop through chars in the tag
+		for char in tag[i]:
+			### Change to inputting data rather than name variables.
+			if char == "=" and isName:
+				isName = False
+			### Record char to the name field (i.e. this is the name of the tag modifier [e.g. id = "John" will save 'id'])
+			elif isName:
+				tagDataName.append(char)
+			### Record char to the data field (i.e. this is what the tag modifier contains [e.g. id = "Geoff" will save '"Geoff"'])
+			elif not isName:
+				tagData.append(char)
+		else:
+			### Flush to dict
+			returnTag["".join(tagDataName)] = "".join(tagData)
+			### Reset buffer variables
+			tagData = []
+			tagDataName = []
+			isName = True
+
+	### Housekeeping (changing '<tagName' to 'name = tagName' and removing the self closing tag.)
+	for key in returnTag:
+		if key[0] == "<":
+			nameKey = key
+
+	if "/>" in returnTag:
+		del returnTag["/>"]
+
+	if nameKey != "":
+		del returnTag[nameKey]
+		nameKey = nameKey[1:]
+		returnTag['name'] = nameKey
+
+	### Final return
+	return returnTag
+
+
+"""	### Retrieves the tag name
 	for i in range(1,len(tag)):
 		### Stop when encountering any of these closing symbols
 		if tag[i] == " " or tag[i] == ">" or tag[i] == "\n" or tag[i] == "/":
@@ -161,7 +201,7 @@ def retrieveTagData(source,index):
 			tagData = []
 			### Exit loop
 			break
-		elif tag[i] == "\n" """and not isName""":
+		elif tag[i] == "\n" and not isName:
 			isName = True
 			### Flush tag to dictionary
 			returnTag[ str(tagDataName) ] = str(tagData)
@@ -169,13 +209,13 @@ def retrieveTagData(source,index):
 			tagData = []
 			# Increment
 			i += 1
-		elif tag[i] == "=" """and isName""":
+		elif tag[i] == "=" and isName:
 			### Move to input tag data
 			isName = False
 			# Increment
 			i += 1
 			continue
-		elif tag[i] == " " """and not isName""":
+		elif tag[i] == " " and not isName:
 			isName = True
 			### Flush tag to dictionary
 			returnTag[ str(tagDataName) ] = str(tagData)
@@ -194,12 +234,12 @@ def retrieveTagData(source,index):
 
 
 	### Return dict
-	"""if '' in returnTag:
+	if '' in returnTag:
 		del returnTag['']
 	elif '/' in returnTag:
-		del returnTag['/']"""
+		del returnTag['/']
 	return returnTag
-
+"""
 
 
 #	</Functions>
@@ -211,7 +251,7 @@ source = prettySource(getSource(url))
 #print(source)
 saveFile(source, "source")
 print("\n\n\n")
-print (str(retrieveTagData(source, 287)))
+print (str(retrieveTagData(source, 1029)))
 print("/tag")
 #search = searchForTag(source, "div", 1)
 #print (search)
