@@ -76,9 +76,11 @@ def saveFile(text, fileName):
 
 def removeChar(text, remChar):
 	### Removes all instances of remChar from text
+
 	#	<Vars>
 	returnText = []
 	#	</Vars>
+
 	for char in source:
 		if char == str(remChar):
 			continue
@@ -98,9 +100,11 @@ def searchForTag(source,tag,iterations):
 
 def retrieveTag(source,index):
 	### Retrieves a tag from a HTML source starting at a given index
+
 	#	<Vars>
 	returnTag = []
 	#	</Vars>
+
 	if source[index] != "<":
 		return ("No Tag at index %s" % str(index))
 	for i in range(index, len(source)):
@@ -112,7 +116,7 @@ def retrieveTag(source,index):
 
 def retrieveTagData(source,index):
 	### Retrieves a tag's data, and returns it as a python dictionary (for easy access and readability)
-	## BUGGY
+
 	#	<Vars>
 	returnTag = {}
 	tagData = []
@@ -128,7 +132,6 @@ def retrieveTagData(source,index):
 	else:
 		### Retrieve only the tag, and add the index at which the tag is found in the source
 		tag = retrieveTag(source,index)
-		#returnTag['indexInSource'] = index
 		tag = tag.split()
 
 	### Split the tags apart
@@ -152,95 +155,37 @@ def retrieveTagData(source,index):
 			tagDataName = []
 			isName = True
 
-	### Housekeeping (changing '<tagName' to 'name = tagName' and removing the self closing tag.)
+	# <Housekeeping> (changing '<tagName' to 'name = tagName' and removing the self closing tag.)
+	### Search for name key
 	for key in returnTag:
 		if key[0] == "<":
 			nameKey = key
 
-	if "/>" in returnTag:
-		del returnTag["/>"]
-
+	### Remove '<' in name, and place under 'name' key
 	if nameKey != "":
 		del returnTag[nameKey]
 		nameKey = nameKey[1:]
 		returnTag['name'] = nameKey
+		### Reset nameKey variable
+		nameKey = ""
+
+	### Search for empty keys
+	for key in returnTag:
+		if key[len(key)-1] == ">":
+			nameKey = key
+
+	### Remove '>' at end of tag close
+	if nameKey != "":
+		returnTag[nameKey[:len(nameKey)-1]] = returnTag[nameKey]
+		del returnTag[nameKey]
+	
+	### Remove self-closing tag
+	if "/>" in returnTag:
+		del returnTag["/>"]
+	# </Housekeeping>
 
 	### Final return
 	return returnTag
-
-
-"""	### Retrieves the tag name
-	for i in range(1,len(tag)):
-		### Stop when encountering any of these closing symbols
-		if tag[i] == " " or tag[i] == ">" or tag[i] == "\n" or tag[i] == "/":
-			returnTag['_Name'] = "".join(tagData)
-			tagData = []
-			break
-		else:
-			tagData.append(tag[i])
-
-	### Adds information as to if the tag is closing
-	if tag[len(tag)-2] == "/":
-		returnTag['_Closing'] = True
-	else:
-		returnTag['_Closing'] = False
-
-	### If there is no other data, then return the dict now
-    ## Possible Error
-	if (" " not in tag) or ("\n" not in tag):
-		return returnTag
-
-	### Retrieves data from within the tag
-	i = 1 + len( returnTag[_Name] )
-	while i < len(tag):
-		###
-		if tag[i] == ">" or tag[i:i+1] == "/>":
-			### Flush tag to dictionary
-			returnTag[ str(tagDataName) ] = str(tagData)
-			tagDataName = []
-			tagData = []
-			### Exit loop
-			break
-		elif tag[i] == "\n" and not isName:
-			isName = True
-			### Flush tag to dictionary
-			returnTag[ str(tagDataName) ] = str(tagData)
-			tagDataName = []
-			tagData = []
-			# Increment
-			i += 1
-		elif tag[i] == "=" and isName:
-			### Move to input tag data
-			isName = False
-			# Increment
-			i += 1
-			continue
-		elif tag[i] == " " and not isName:
-			isName = True
-			### Flush tag to dictionary
-			returnTag[ str(tagDataName) ] = str(tagData)
-			tagDataName = []
-			tagData = []
-			# Increment
-			i += 1
-			continue
-		### Continually append data to tagData and tagDataName (unless continue statement is reached above)
-		if isName:
-			tagDataName.append( tag[i] )
-		else:
-			tagData.append( tag[i] )
-		# Increment
-		i += 1
-
-
-	### Return dict
-	if '' in returnTag:
-		del returnTag['']
-	elif '/' in returnTag:
-		del returnTag['/']
-	return returnTag
-"""
-
 
 #	</Functions>
 
@@ -251,7 +196,7 @@ source = prettySource(getSource(url))
 #print(source)
 saveFile(source, "source")
 print("\n\n\n")
-print (str(retrieveTagData(source, 1029)))
+print (str(retrieveTagData(source, 738)))
 print("/tag")
 #search = searchForTag(source, "div", 1)
 #print (search)
